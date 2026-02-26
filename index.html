@@ -1,0 +1,207 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Revision Booster</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
+
+<!-- PARALLAX BACKGROUND ORBS -->
+<div class="parallax-bg" id="parallaxBg">
+  <div class="p-orb p-orb-1"></div>
+  <div class="p-orb p-orb-2"></div>
+  <div class="p-orb p-orb-3"></div>
+  <div class="p-orb p-orb-4"></div>
+  <div class="p-grid"></div>
+</div>
+
+<div class="container fade">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="logo-badge">SRB</div>
+    <div class="header-text">
+      <h1>Smart Revision Booster</h1>
+      <p class="tagline">Upload · Learn · Ace it</p>
+    </div>
+  </header>
+
+  <!-- ① UPLOAD -->
+  <div id="uploadSection" class="upload-section">
+    <label class="upload-btn">
+      <span class="upload-icon">📄</span>
+      <span class="upload-label">Upload your PDF</span>
+      <span class="upload-sub">Click to browse your file</span>
+      <input type="file" id="pdfUpload" hidden accept=".pdf">
+    </label>
+  </div>
+
+  <!-- ② PROCESSING BAR -->
+  <div id="processingBar" class="hidden processing-bar-wrapper">
+    <div class="processing-header">
+      <span class="processing-icon">⚙️</span>
+      <span id="processingLabel" class="processing-label">Reading PDF...</span>
+    </div>
+    <div class="processing-track">
+      <div id="processingFill" class="processing-fill"></div>
+      <div class="processing-shimmer"></div>
+    </div>
+    <div class="processing-dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- ③ MODE SWITCH -->
+  <div id="modeSwitch" class="hidden mode-switch">
+    <p class="mode-label">Choose your study mode</p>
+    <div class="mode-buttons">
+      <button id="quizModeBtn" class="mode-btn quiz-btn">
+        <span class="mode-icon">🧠</span>
+        <span class="mode-name">Quiz Mode</span>
+        <span class="mode-desc">Test yourself with MCQs</span>
+      </button>
+      <button id="flashModeBtn" class="mode-btn flash-btn">
+        <span class="mode-icon">⚡</span>
+        <span class="mode-name">Flashcards</span>
+        <span class="mode-desc">Flip &amp; recall key terms</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ④ QUESTION PICKER -->
+  <div id="questionPicker" class="hidden fade question-picker">
+    <div class="picker-header">
+      <div id="pickerModeIcon" class="picker-mode-icon">🧠</div>
+      <div>
+        <p class="picker-title" id="pickerTitle">Quiz Mode</p>
+        <p class="picker-sub">How many questions do you want?</p>
+      </div>
+    </div>
+    <div class="slider-section">
+      <div class="slider-value-row">
+        <span class="slider-value-label">Questions</span>
+        <div class="slider-value-badge"><span id="sliderVal">5</span></div>
+      </div>
+      <input type="range" id="qSlider" class="q-slider" min="1" max="10" value="5" step="1">
+      <div class="slider-ticks" id="sliderTicks"></div>
+    </div>
+    <div class="quick-picks">
+      <span class="qp-label">Quick pick:</span>
+      <button class="qp-btn" data-val="3">3</button>
+      <button class="qp-btn" data-val="5">5</button>
+      <button class="qp-btn" data-val="8">8</button>
+      <button class="qp-btn" data-val="all">All</button>
+    </div>
+    <div class="picker-actions">
+      <button id="backToMode" class="btn-back">← Back</button>
+      <button id="startSession" class="btn-start">Let's Go! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ⑤ QUIZ -->
+  <div id="quizCard" class="hidden fade quiz-wrapper">
+    <div class="quiz-top">
+      <div class="timer-wrapper">
+        <svg class="progress-ring" width="90" height="90">
+          <circle class="progress-ring-bg" cx="45" cy="45" r="38"/>
+          <circle class="progress-ring-circle" cx="45" cy="45" r="38"/>
+        </svg>
+        <div id="timerText">15</div>
+      </div>
+      <div class="quiz-meta">
+        <div id="questionNumber" class="q-number"></div>
+        <div class="progress-bar"><div id="progressFill"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <h2 id="questionText"></h2>
+    </div>
+    <div id="optionsContainer" class="options-grid"></div>
+  </div>
+
+  <!-- ⑥ FLASHCARDS -->
+  <div id="flashSection" class="hidden fade flash-wrapper">
+    <div class="flash-topbar">
+      <div id="flashCounter" class="flash-counter"></div>
+      <div class="flash-progress-bar"><div id="flashProgressFill"></div></div>
+    </div>
+    <p class="flash-hint">Click the card to reveal the answer</p>
+    <div class="flashcard" id="flashcard">
+      <div class="flash-inner">
+        <div class="flash-front" id="flashFront"></div>
+        <div class="flash-back" id="flashBack"></div>
+      </div>
+    </div>
+    <button id="nextFlash" class="next-btn">Next Card →</button>
+  </div>
+
+  <!-- ⑦ RESULTS -->
+  <div id="resultCard" class="hidden fade result-wrapper">
+
+    <!-- Score header -->
+    <div class="result-header">
+      <div class="trophy">🏆</div>
+      <h2>Performance Summary</h2>
+      <div class="score-block">
+        <div id="finalScore" class="final-score"></div>
+        <div id="scorePct" class="score-pct"></div>
+      </div>
+    </div>
+
+    <!-- Performance Feedback -->
+    <div class="heatmap-section">
+      <div class="heatmap-title"><span>📊</span><span>Performance Feedback</span></div>
+      <div id="heatmapContainer" class="heatmap-container"></div>
+    </div>
+
+    <!-- Detailed Review -->
+    <div id="reviewSection" class="review-section-wrap"></div>
+
+    <!-- END SCREEN ACTIONS -->
+    <div class="end-actions-title">What would you like to do next?</div>
+    <div class="end-actions-grid">
+
+      <button id="endRestart" class="end-card end-restart">
+        <span class="end-card-icon">🔁</span>
+        <span class="end-card-name">Try Again</span>
+        <span class="end-card-desc">Pick question count &amp; retry</span>
+      </button>
+
+      <button id="endRetryWrong" class="end-card end-retry-wrong">
+        <span class="end-card-icon">🎯</span>
+        <span class="end-card-name">Retry Wrong</span>
+        <span class="end-card-desc">Only incorrect questions</span>
+      </button>
+
+      <button id="endUpload" class="end-card end-upload">
+        <span class="end-card-icon">📂</span>
+        <span class="end-card-name">New PDF</span>
+        <span class="end-card-desc">Upload another document</span>
+      </button>
+
+      <button id="endFlash" class="end-card end-flash">
+        <span class="end-card-icon">⚡</span>
+        <span class="end-card-name">Flashcards</span>
+        <span class="end-card-desc">Review with flip cards</span>
+      </button>
+
+    </div>
+
+  </div><!-- /resultCard -->
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-heart">♥</span>
+    <span class="footer-text">Designed &amp; Developed by</span>
+    <span class="footer-name">Swarnadip Choudhury</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
